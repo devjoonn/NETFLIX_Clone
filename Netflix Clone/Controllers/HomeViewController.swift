@@ -7,9 +7,19 @@
 
 import UIKit
 
+
+enum Section: Int {
+    case TrendingMovie = 0
+    case TrendingTv = 1
+    case Popular = 2
+    case Upcoming = 3
+    case TopRated = 4
+}
+
+
 class HomeViewController: UIViewController {
     
-    let sectionTitle: [String] = ["Trending Movies", "Popular", "Trending TV", "Upcoming Movies", "Top rated"]
+    let sectionTitle: [String] = ["Trending Movies", "Trending Tv", "Popular", "Upcoming Movies", "Top rated"]
     
     
     //테이블뷰 선언
@@ -35,7 +45,6 @@ class HomeViewController: UIViewController {
         let headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 450))
         homeFeedTable.tableHeaderView = headerView
         
-        getTrendingMovies()
     }
     
     //상단 Netflix 사진 추가
@@ -57,17 +66,25 @@ class HomeViewController: UIViewController {
     }
     
     // API 호출 메서드
-    private func getTrendingMovies() {
-        APICaller.shared.getTrendingMovies { results  in
-            switch results {
-                
-            case .success(let movies):
-                print(movies)
-            case .failure(let error):
-                print(error)
-            }
-        }
-    }
+//    private func fetchData() {
+//        APICaller.shared.getTrendingMovies { results  in
+//            switch results {
+//
+//            case .success(let movies):
+//                print(movies)
+//            case .failure(let error):
+//                print(error)
+//            }
+//        }
+//        APICaller.shared.getTrendingTvs { result in
+//        }
+//        APICaller.shared.getPopularMovies { result in
+//        }
+//        APICaller.shared.getTopRated { result in
+//        }
+//        APICaller.shared.getUpcomingMovies { result in
+//        }
+//    }
     
 }
 
@@ -89,6 +106,57 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
             return UITableViewCell()
         }
         
+        // TitleCollectionViewCell 에 public configure 메소드의 정의로 각 데이터의 이름에 맞춰 사진들 추가
+        switch indexPath.section { // 각 섹션별로
+        case Section.TrendingMovie.rawValue:
+            APICaller.shared.getTrendingMovies { result in // 타이틀 이미지에 맞게
+                switch result {
+                case .success(let titles):
+                    cell.configure(with: titles)
+                case .failure(let error):
+                    print(error.localizedDescription)
+                }
+            }
+        case Section.TrendingTv.rawValue:
+            APICaller.shared.getTrendingTvs { result in
+                switch result {
+                case .success(let titles):
+                    cell.configure(with: titles)
+                case .failure(let error):
+                    print(error.localizedDescription)
+                }
+            }
+        case Section.Popular.rawValue:
+            APICaller.shared.getTrendingTvs { result in
+                switch result {
+                case .success(let titles):
+                    cell.configure(with: titles)
+                case .failure(let error):
+                    print(error.localizedDescription)
+                }
+            }
+        case Section.Upcoming.rawValue:
+            APICaller.shared.getTrendingTvs { result in
+                switch result {
+                case .success(let titles):
+                    cell.configure(with: titles)
+                case .failure(let error):
+                    print(error.localizedDescription)
+                }
+            }
+        case Section.TopRated.rawValue:
+            APICaller.shared.getTrendingTvs { result in
+                switch result {
+                case .success(let titles):
+                    cell.configure(with: titles)
+                case .failure(let error):
+                    print(error.localizedDescription)
+                }
+            }
+        default:
+            return UITableViewCell()
+        }
+        
         return cell
     }
     
@@ -107,7 +175,8 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         header.textLabel?.font = .systemFont(ofSize: 18, weight: .bold)
         header.textLabel?.frame = CGRect(x: header.bounds.origin.x+20, y: header.bounds.origin.y, width: 100, height: header.bounds.height)
         header.textLabel?.textColor = .label
-        header.textLabel?.text = header.textLabel?.text?.lowercased()
+        //extension 에서 첫글자 대문자 
+        header.textLabel?.text = header.textLabel?.text?.capitalizeFirstLetter()
     }
     
     //섹션별 이름 추가
