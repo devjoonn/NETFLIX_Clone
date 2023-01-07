@@ -60,6 +60,7 @@ class HomeViewController: UIViewController {
         navigationController?.navigationBar.tintColor = .label
     }
     
+    //이게있어야 테이블뷰가 보임
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         homeFeedTable.frame = view.bounds

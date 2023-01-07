@@ -7,6 +7,8 @@
 
 import UIKit
 
+
+//HomeView
 class CollectionViewTableViewCell: UITableViewCell {
 
     static let identifier = "CollectionViewTableViewCell"
