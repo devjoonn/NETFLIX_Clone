@@ -117,4 +117,24 @@ class APICaller {
         }
         task.resume()
     }
+    
+    
+    
+    // 검색결과 가져오는 함수
+    func getDiscoverMovie(completion: @escaping (Result<[Title], Error>) -> Void) {
+        guard let url = URL(string:"https://api.themoviedb.org/3/discover/movie?api_key=\(constants.API_KEY )&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_watch_monetization_types=flatrate") else { return }
+        
+        let task = URLSession.shared.dataTask(with: url) { data, _, error in
+            guard let data = data, error == nil else {
+                return
+            }
+            do {
+                let results = try JSONDecoder().decode(TrendingTitleResponse.self, from: data)
+                completion(.success(results.results))
+            } catch {
+                completion(.failure(APIError.failedToGetData))
+            }
+        }
+        task.resume()
+    }
 }
