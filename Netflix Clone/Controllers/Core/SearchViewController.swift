@@ -17,6 +17,13 @@ class SearchViewController: UIViewController {
         return table
     }()
     
+    private let searchController: UISearchController = {
+        let controller = UISearchController(searchResultsController: SearchResultsViewController())
+        controller.searchBar.placeholder = "Search for a Movie or a Tv show"
+        controller.searchBar.searchBarStyle = .minimal
+        return controller
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -27,8 +34,14 @@ class SearchViewController: UIViewController {
         view.addSubview(discoverTable)
         discoverTable.delegate = self
         discoverTable.dataSource = self
+        //상단에 search뷰 생성
+        navigationItem.searchController = searchController
+        navigationController?.navigationBar.tintColor = .white
         
         fetchDiscoverMovies()
+        
+        // searchController 업데이트하는 필수 코드 (밑에 extention)
+        searchController.searchResultsUpdater = self
     }
     
     override func viewDidLayoutSubviews() {
@@ -72,3 +85,35 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
     }
 }
  
+
+extension SearchViewController: UISearchResultsUpdating {
+    
+    // searchBar에서 입력한 쿼리를 가져와야함
+    func updateSearchResults(for searchController: UISearchController) {
+        let searchBar = searchController.searchBar
+        
+        guard let query = searchBar.text,
+              !query.trimmingCharacters(in: .whitespaces).isEmpty,
+              query.trimmingCharacters(in: .whitespaces).count >= 3,
+              // resultController는 입력한 결과값이 나오는 searchResultViewController
+              let resultController = searchController.searchResultsController as? SearchResultsViewController else {return}
+        
+        APICaller.shared.search(with: query) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let titles):
+                    resultController.titles = titles
+                    resultController.searchResultsCollectionView.reloadData()
+                case .failure(let error):
+                    print(error.localizedDescription)
+                }
+            }
+        }
+    }
+    
+    func getMovie(with query: String) {
+        let url = URL(string: "q=")
+    }
+    
+    
+}

@@ -34,7 +34,7 @@ class UpComingViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         upcomingTable.frame = view.bounds
-    }
+    } 
     
     // 데이터 새로고침
     private func fetchUpcoming() {

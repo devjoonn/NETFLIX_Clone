@@ -10,6 +10,9 @@ import Foundation
 struct constants {
     static let API_KEY = "74cc7e95a584748e85f44fbd362de40a"
     static let baseURL = "https://api.themoviedb.org"
+    // google 개발자비용이 나가서 영상에서 퍼옴
+    static let YoutubeAPI_KEY = ""
+    static let YoutubeBaseURL = "https://youtube.googleapis.com/youtube/v3/search?"
     
 }
 
@@ -122,7 +125,7 @@ class APICaller {
     
     // 검색결과 가져오는 함수
     func getDiscoverMovie(completion: @escaping (Result<[Title], Error>) -> Void) {
-        guard let url = URL(string:"https://api.themoviedb.org/3/discover/movie?api_key=\(constants.API_KEY )&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_watch_monetization_types=flatrate") else { return }
+        guard let url = URL(string:"\(constants.baseURL)/3/discover/movie?api_key=\(constants.API_KEY )&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_watch_monetization_types=flatrate") else { return }
         
         let task = URLSession.shared.dataTask(with: url) { data, _, error in
             guard let data = data, error == nil else {
@@ -137,4 +140,27 @@ class APICaller {
         }
         task.resume()
     }
+    
+    // query는 searchBar에서 타이핑한 String 값
+    func search(with query: String, completion: @escaping (Result<[Title], Error>) -> Void) {
+        
+        // query를 설정해야 오류가 안남
+        guard let query = query.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) else {return}
+        guard let url = URL(string:"\(constants.baseURL)/3/search/movie?api_key=\(constants.API_KEY)&query=\(query)") else { return }
+        
+        let task = URLSession.shared.dataTask(with: url) { data, _, error in
+            guard let data = data, error == nil else {
+                return
+            }
+            do {
+                let results = try JSONDecoder().decode(TrendingTitleResponse.self, from: data)
+                completion(.success(results.results))
+            } catch {
+                completion(.failure(APIError.failedToGetData))
+            }
+        }
+        task.resume()
+    }
+    
+    
 }
